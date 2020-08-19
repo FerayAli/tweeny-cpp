@@ -1,6 +1,7 @@
 #pragma once
 #include "tween_common.h"
 #include <functional>
+#include <algorithm>
 
 namespace tweeny
 {
