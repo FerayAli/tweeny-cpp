@@ -264,5 +264,5 @@ move_by(Object& object,
 
 } //end of namespace
 
-#include "tween_non_fundamental.cpp"
+#include "tween_non_fundamental.hpp"
 
