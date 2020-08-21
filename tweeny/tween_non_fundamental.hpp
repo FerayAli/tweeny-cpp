@@ -7,33 +7,41 @@ namespace tweeny
 template<typename Object, typename TargetType>
 tween_action
 move_from_to(Object& object,
-             TargetType begin,
-             TargetType end,
-             duration_t duration,
-             sentinel_t sentinel)
+             TargetType&& begin,
+             TargetType&& end,
+             const duration_t& duration,
+             const sentinel_t& sentinel)
 {
-    auto initialize_func = [begin = std::move(begin)](Object*, sentinel_t)
+    auto creator = [&object
+                    , begin = std::forward<TargetType>(begin)
+                    , end = std::forward<TargetType>(end)
+                    , sentinel = sentinel]
+    (tween_action& self)
     {
-        return begin;
-    };
+        if(self.on_begin)
+        {
+            self.on_begin();
+        }
 
-    auto updater_func = [](Object* object, TargetType next) mutable
-    {
-        tween_non_fundamental_export<Object>::set_position(*object, next);
-    };
+        auto initialize_func = [begin](Object*, sentinel_t)
+        {
+            return begin;
+        };
 
-    auto creator = create_tween_updater(&object,
-                                        std::move(end),
-                                        std::move(sentinel),
-                                        std::move(initialize_func),
-                                        std::move(updater_func));
+        auto updater_func = [](Object* object, TargetType next) mutable
+        {
+            tween_non_fundamental_export<Object>::set_position(*object, next);
+        };
+
+        return create_tween_updater(&object, end, sentinel, std::move(initialize_func), std::move(updater_func));
+    };
 
     return tween_action(std::move(creator), std::move(duration));
 }
 
 template<typename Object, typename TargetType>
 tween_action
-move_from_to(std::shared_ptr<Object>& object,
+move_from_to(const std::shared_ptr<Object>& object,
              TargetType begin,
              TargetType end,
              duration_t duration)
@@ -49,7 +57,7 @@ move_from_to_local(Object& object,
                    duration_t duration,
                    sentinel_t sentinel)
 {
-    auto initialize_func = [begin = std::move(begin)](Object*, sentinel_t)
+    auto initialize_func = [begin](Object*, sentinel_t)
     {
         return begin;
     };
@@ -59,13 +67,14 @@ move_from_to_local(Object& object,
         tween_non_fundamental_export<Object>::set_position_local(*object, next);
     };
 
-    auto creator = create_tween_updater(&object,
-                                        std::move(end),
-                                        std::move(sentinel),
-                                        std::move(initialize_func),
-                                        std::move(updater_func));
+//    auto creator = create_tween_updater(&object,
+//                                        std::move(end),
+//                                        std::move(sentinel),
+//                                        std::move(initialize_func),
+//                                        std::move(updater_func));
 
-    return tween_action(std::move(creator), std::move(duration));
+//    return tween_action(std::move(creator), std::move(duration));
+    return tween_action();
 }
 
 template<typename Object, typename TargetType>
@@ -85,27 +94,31 @@ move_to(Object& object,
         duration_t duration,
         sentinel_t sentinel)
 {
-    auto initialize_func = [](Object* object, sentinel_t sentinel)
+    auto creator = [&object, end, sentinel](tween_action& self)
     {
-        if(sentinel.expired())
+        if(self.on_begin)
         {
-            return TargetType{};
+            self.on_begin();
         }
-        return tween_non_fundamental_export<Object>::get_position(*object);
+
+        auto initialize_func = [](Object* object, sentinel_t sentinel)
+        {
+            if(sentinel.expired())
+            {
+                return TargetType{};
+            }
+            return tween_non_fundamental_export<Object>::get_position(*object);
+        };
+
+        auto updater_func = [](Object* object, TargetType next) mutable
+        {
+            tween_non_fundamental_export<Object>::set_position(*object, next);
+        };
+
+        return create_tween_updater(&object, end, sentinel, std::move(initialize_func), std::move(updater_func));
     };
 
-    auto updater_func = [](Object* object, TargetType next) mutable
-    {
-        tween_non_fundamental_export<Object>::set_position(*object, next);
-    };
-
-    auto creator = create_tween_updater(&object,
-                                        std::move(end),
-                                        std::move(sentinel),
-                                        std::move(initialize_func),
-                                        std::move(updater_func));
-
-    return tween_action(std::move(creator), std::move(duration));
+    return tween_action(std::move(creator), duration);
 }
 
 template<typename Object, typename TargetType>
@@ -138,13 +151,14 @@ move_to_local(Object& object,
         tween_non_fundamental_export<Object>::set_position_local(*object, next);
     };
 
-    auto creator = create_tween_updater(&object,
-                                        std::move(end),
-                                        std::move(sentinel),
-                                        std::move(initialize_func),
-                                        std::move(updater_func));
+//    auto creator = create_tween_updater(&object,
+//                                        std::move(end),
+//                                        std::move(sentinel),
+//                                        std::move(initialize_func),
+//                                        std::move(updater_func));
 
-    return tween_action(std::move(creator), std::move(duration));
+//    return tween_action(std::move(creator), std::move(duration));
+    return tween_action();
 }
 
 template<typename Object, typename TargetType>
@@ -178,13 +192,14 @@ move_by(Object& object,
         prev = next;
     };
 
-    auto creator = create_tween_updater(&object,
-                                        std::move(amount),
-                                        std::move(sentinel),
-                                        std::move(initialize_func),
-                                        std::move(updater_func));
+//    auto creator = create_tween_updater(&object,
+//                                        std::move(amount),
+//                                        std::move(sentinel),
+//                                        std::move(initialize_func),
+//                                        std::move(updater_func));
 
-    return tween_action(std::move(creator), std::move(duration));
+//    return tween_action(std::move(creator), std::move(duration));
+    return tween_action();
 }
 
 template<typename Object, typename TargetType>

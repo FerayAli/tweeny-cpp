@@ -14,11 +14,13 @@ struct tween_manager
     tween_id_t start(tween_impl<T> tween)
     {
         tween_info& info = tweenies_[tween.get_id()];
+
         info.tween = std::make_unique<tween_impl<T>>(std::move(tween));
 
         tween_private::start(*info.tween);
 
-        return info.tween->get_id();
+        auto i = info.tween->get_id();
+        return i;
     }
 
     template<typename T>
@@ -26,8 +28,8 @@ struct tween_manager
     {
         stop(tween.get_id());
     }
-
     void stop(tween_id_t id);
+    void stop_all();
 
     template<typename T>
     void stop_when_finished(const tween_impl<T>& tween)
@@ -61,7 +63,7 @@ struct tween_manager
     //is_running
     //is_paused
     //update
-
+    size_t get_tweenies_count() const;
 private:
     struct tween_info
     {
@@ -70,6 +72,7 @@ private:
     };
 
     std::unordered_map<tween_id_t, tween_info> tweenies_;
+    std::unordered_map<tween_id_t, std::unique_ptr<tween_base_impl>> pending_tweenies_;
 };
 
 }

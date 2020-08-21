@@ -2,20 +2,21 @@
 #include "tween_common.h"
 #include "tween_updater.h"
 
+//NAME - tween_ex, tween_extended
 namespace tweeny
 {
 
 template<typename Object, typename TargetType>
 tween_action
 move_from_to(Object& object,
-             TargetType begin,
-             TargetType end,
-             duration_t duration,
-             sentinel_t sentinel);
+             TargetType&& begin,
+             TargetType&& end,
+             const duration_t& duration,
+             const sentinel_t& sentinel);
 
 template<typename Object, typename TargetType>
 tween_action
-move_from_to(std::shared_ptr<Object>& object,
+move_from_to(const std::shared_ptr<Object>& object,
              TargetType begin,
              TargetType end,
              duration_t duration);

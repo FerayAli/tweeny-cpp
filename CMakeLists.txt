@@ -6,6 +6,7 @@ include(CTest)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/utility")
 
 option(BUILD_TWEENY_SHARED "Build as a shared library." ON)
+
 option(BUILD_TWEENY_TESTS "Build the tests" ON)
 option(BUILD_TWEENY_WITH_CODE_STYLE_CHECKS "Build with code style checks." ON)
 

@@ -52,14 +52,15 @@ tween_from_to(TargetType& object,
         (*object) = next;
     };
 
-    auto update_impl = create_tween_updater(&object,
-                                            end,
-                                            sentinel,
-                                            initialize_func,
-                                            updater_func,
-                                            ease_func);
+//    auto update_impl = create_tween_updater(&object,
+//                                            end,
+//                                            sentinel,
+//                                            initialize_func,
+//                                            updater_func,
+//                                            ease_func);
 
-    return tween_action(std::move(update_impl), duration);
+//    return tween_action(std::move(update_impl), duration);
+    return tween_action();
 }
 
 template<typename TargetType>
@@ -94,14 +95,20 @@ tween_to(TargetType& object,
         (*object) = next;
     };
 
-    auto update_impl = create_tween_updater(&object,
-                                                   end,
-                                                   duration,
-                                                   sentinel,
-                                                   initialize_func,
-                                                   updater_func);
+    auto creator = [&object, end, sentinel](tween_action& self)
+    {
+        if(self.on_begin)
+        {
+            self.on_begin();
+        }
+        return create_tween_updater(&object,
+                                    end,
+                                    sentinel,
+                                    initialize_func,
+                                    updater_func);;
+    };
 
-    return tween_action(std::move(update_impl), duration);
+    return tween_action(std::move(creator), duration);
 }
 
 template<typename TargetType>
@@ -131,14 +138,15 @@ tween_by(TargetType& object,
         prev = next;
     };
 
-    auto update_impl = create_tween_updater(&object,
-                                                   amount,
-                                                   duration,
-                                                   sentinel,
-                                                   initialize_func,
-                                                   updater_func);
+//    auto update_impl = create_tween_updater(&object,
+//                                                   amount,
+//                                                   duration,
+//                                                   sentinel,
+//                                                   initialize_func,
+//                                                   updater_func);
 
-    return tween_action(std::move(update_impl), duration);
+//    return tween_action(std::move(update_impl), duration);
+    return tween_action();
 }
 
 template<typename TargetType>
@@ -148,6 +156,80 @@ tween_by(std::shared_ptr<TargetType>& object,
          duration_t duration)
 {
     return tween_by(*object.get(), amount, duration, object);
+}
+
+template<typename T1, typename T2, typename... TweenType>
+tween_action sequence(T1&& tween1, T2&& tween2, TweenType&&... tween)
+{
+    std::vector<std::shared_ptr<tween_base_impl>> tween_holder =
+    {
+        std::make_shared<decltype(std::decay_t<T1>(tween1))>(std::forward<T1>(tween1)),
+        std::make_shared<decltype(std::decay_t<T2>(tween2))>(std::forward<T1>(tween2)),
+        std::make_shared<decltype(std::decay_t<TweenType>(tween))>(std::forward<TweenType>(tween))...
+    };
+
+    duration_t duration = 0ms;
+    for(auto& tween : tween_holder)
+    {
+        duration += tween->get_duration();
+    }
+
+    auto updater = [tween_holder = std::move(tween_holder)
+                    , current_tween_idx = size_t(0)
+                    , prev_elapsed = duration_t::zero()
+                    , start_required = true
+                    , finished = false]
+            (duration_t delta, tween_action& self) mutable
+    {
+        if(finished)
+        {
+            return state_t::finished;
+        }
+
+        if(start_required)
+        {
+            tween_private::start(*tween_holder.at(current_tween_idx));
+            prev_elapsed = duration_t::zero();
+            start_required = false;
+        }
+
+        auto& current_tween = tween_holder.at(current_tween_idx);
+        auto state = tween_private::update(*current_tween, delta);
+
+        auto elapsed_diff = current_tween->get_elapsed() - prev_elapsed;
+        prev_elapsed = current_tween->get_elapsed();
+
+        tween_private::update_elapsed(self, elapsed_diff);
+
+        if(state == state_t::finished)
+        {
+            current_tween_idx++;
+            if(current_tween_idx == tween_holder.size())
+            {
+                finished = true;
+                return state_t::finished;
+            }
+            start_required = true;
+        }
+        return state_t::running;
+    };
+
+    auto creator = [updater = std::move(updater)](tween_action& self)
+    {
+        if(self.on_begin)
+        {
+            self.on_begin();
+        }
+        return updater;
+    };
+
+    return tween_action(std::move(creator), duration);
+}
+
+template<typename T>
+tween_action sequence(const std::vector<tween_impl<T>>& tweenies)
+{
+    return tween_action();
 }
 
 //template<typename T1, typename T2, typename... TweenType>

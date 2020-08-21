@@ -17,7 +17,7 @@ auto create_tween_updater(Object* object,
                      UpdateFunc&& update_func,
                      ease_t ease_func = ease::linear)
 {
-    auto updater = [object
+    return [object
             , begin = initialize_func(object, sentinel)
             , end = std::move(end)
             , sentinel = std::move(sentinel)
@@ -68,18 +68,6 @@ auto create_tween_updater(Object* object,
 
         return state_t::running;
     };
-
-    auto creator = [updater = std::move(updater)]
-            (tween_action& self)
-    {
-        if(self.on_begin)
-        {
-            self.on_begin();
-        }
-        return updater;
-    };
-
-    return creator;
 }
 
 template<typename TargetType,

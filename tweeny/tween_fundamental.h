@@ -5,6 +5,7 @@
 #include "tween_ease.h"
 #include <vector>
 
+//NAME - tween_core
 namespace tweeny
 {
 
@@ -57,10 +58,11 @@ tween_by(std::shared_ptr<TargetType>& object,
          decltype(std::decay_t<TargetType>(object)) amount,
          duration_t duration);
 
-//template<typename... TweenType>
-//tween_action sequence(TweenType&&... tween);
+template<typename T1, typename T2, typename... TweenType>
+tween_action sequence(T1&& tween1, T2&& tween2, TweenType&&... tween);
 
-//tween_action sequence(const std::vector<tween_action>& tweenies);
+template<typename T>
+tween_action sequence(const std::vector<tween_impl<T>>& tweenies);
 
 //template<typename... TweenType>
 //tween_action together(TweenType&&... tween);

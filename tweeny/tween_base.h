@@ -12,7 +12,7 @@ struct tween_base_impl
 
     virtual ~tween_base_impl() = default;
 
-    tween_base_impl() = default;
+    tween_base_impl();
     tween_base_impl(const tween_base_impl&) = default;
     tween_base_impl(tween_base_impl&&) = default;
 

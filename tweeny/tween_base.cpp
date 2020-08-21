@@ -3,6 +3,12 @@
 namespace tweeny
 {
 
+tween_base_impl::tween_base_impl()
+{
+    static tween_id_t unique_id = 1;
+    id_ = unique_id++;
+}
+
 float tween_base_impl::get_progress() const
 {
     return float(elapsed_.count()) / float(duration_.count());

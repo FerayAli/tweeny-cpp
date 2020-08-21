@@ -22,6 +22,9 @@ enum class state_t
 template<typename Object>
 struct tween_non_fundamental_export {};
 
+template<typename Object>
+struct tween_access{};
+
 namespace math
 {
 //Make things constexpr
