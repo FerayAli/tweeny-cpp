@@ -1,6 +1,7 @@
 #pragma once
 #include "tween_action.h"
 #include "tween_private.h"
+#include "tween_ease.h"
 
 namespace tweeny
 {
@@ -9,18 +10,19 @@ template<typename Object,
          typename TargetType,
          typename InitializeFunc,
          typename UpdateFunc>
-auto create_tween_creator(Object* object,
+auto create_tween_updater(Object* object,
                      TargetType end,
-                     duration_t duration,
                      sentinel_t sentinel,
                      InitializeFunc&& initialize_func,
-                     UpdateFunc&& update_func)
+                     UpdateFunc&& update_func,
+                     ease_t ease_func = ease::linear)
 {
     auto updater = [object
             , begin = initialize_func(object, sentinel)
             , end = std::move(end)
             , sentinel = std::move(sentinel)
             , update_func = std::forward<UpdateFunc>(update_func)
+            , ease_func = std::move(ease_func)
             , finished = false]
     (duration_t delta, tween_action& self) mutable -> state_t
     {
@@ -45,7 +47,7 @@ auto create_tween_creator(Object* object,
 
         tween_private::update_elapsed(self, delta);
 
-        const float progress = self.get_progress();
+        const float progress = ease_func(self.get_progress());
         const TargetType next = begin + ((end - begin) * progress);
         update_func(object, next);
 
@@ -138,12 +140,11 @@ auto create_tween_value_creator(TargetType end,
                     , end]
             (tween_impl<TargetType>& self)
     {
-        const auto start_value = (self.get_direction() == direction_t::forward) ? begin : end;
         if(self.on_begin)
         {
-            self.on_begin(start_value);
+            self.on_begin(begin);
         }
-        return std::make_tuple(updater, start_value);
+        return std::make_tuple(updater, begin);
     };
 
     return creator;

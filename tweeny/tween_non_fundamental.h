@@ -6,7 +6,7 @@ namespace tweeny
 {
 
 template<typename Object, typename TargetType>
-typename std::enable_if_t<!is_shared_ptr<Object>::value, tween_action>
+tween_action
 move_from_to(Object& object,
              TargetType begin,
              TargetType end,
@@ -14,14 +14,14 @@ move_from_to(Object& object,
              sentinel_t sentinel);
 
 template<typename Object, typename TargetType>
-typename std::enable_if_t<is_shared_ptr<Object>::value, tween_action>
-move_from_to(Object& object,
+tween_action
+move_from_to(std::shared_ptr<Object>& object,
              TargetType begin,
              TargetType end,
              duration_t duration);
 
 template<typename Object, typename TargetType>
-typename std::enable_if_t<!is_shared_ptr<Object>::value, tween_action>
+tween_action
 move_from_to_local(Object& object,
                    TargetType begin,
                    TargetType end,
@@ -29,48 +29,48 @@ move_from_to_local(Object& object,
                    sentinel_t sentinel);
 
 template<typename Object, typename TargetType>
-typename std::enable_if_t<is_shared_ptr<Object>::value, tween_action>
-move_from_to_local(Object& object,
+tween_action
+move_from_to_local(std::shared_ptr<Object>& object,
                    TargetType begin,
                    TargetType end,
                    duration_t duration);
 
 template<typename Object, typename TargetType>
-typename std::enable_if_t<!is_shared_ptr<Object>::value, tween_action>
+tween_action
 move_to(Object& object,
-             TargetType end,
-             duration_t duration,
-             sentinel_t sentinel);
+        TargetType end,
+        duration_t duration,
+        sentinel_t sentinel);
 
 template<typename Object, typename TargetType>
-typename std::enable_if_t<is_shared_ptr<Object>::value, tween_action>
-move_to(Object& object,
-             TargetType end,
-             duration_t duration);
+tween_action
+move_to(std::shared_ptr<Object>& object,
+        TargetType end,
+        duration_t duration);
 
 template<typename Object, typename TargetType>
-typename std::enable_if_t<!is_shared_ptr<Object>::value, tween_action>
+tween_action
 move_to_local(Object& object,
-             TargetType end,
-             duration_t duration,
-             sentinel_t sentinel);
+              TargetType end,
+              duration_t duration,
+              sentinel_t sentinel);
 
 template<typename Object, typename TargetType>
-typename std::enable_if_t<is_shared_ptr<Object>::value, tween_action>
-move_to_local(Object& object,
-             TargetType end,
-             duration_t duration);
+tween_action
+move_to_local(std::shared_ptr<Object>& object,
+              TargetType end,
+              duration_t duration);
 
 template<typename Object, typename TargetType>
-typename std::enable_if_t<!is_shared_ptr<Object>::value, tween_action>
+tween_action
 move_by(Object& object,
         TargetType amount,
         duration_t duration,
         sentinel_t sentinel);
 
 template<typename Object, typename TargetType>
-typename std::enable_if_t<is_shared_ptr<Object>::value, tween_action>
-move_by(Object& object,
+tween_action
+move_by(std::shared_ptr<Object>& object,
         TargetType amount,
         duration_t duration);
 

@@ -18,32 +18,26 @@ struct tween_private
         tween.stop();
     }
 
-    template<typename T>
-    static void stop_when_finished(tween_impl<T>& tween)
+    template<typename Tween>
+    static void stop_when_finished(Tween& tween)
     {
         tween.stop_when_finished();
     }
 
-    template<typename T>
-    static void resume(tween_impl<T>& tween)
+    template<typename Tween>
+    static void resume(Tween& tween)
     {
         tween.resume();
     }
 
-    template<typename T>
-    static void pause(tween_impl<T>& tween)
+    template<typename Tween>
+    static void pause(Tween& tween)
     {
         tween.pause();
     }
 
-    template<typename T>
-    static void set_direction(tween_impl<T>& tween, direction_t dir)
-    {
-        tween.set_direction(dir);
-    }
-
-    template<typename T>
-    static void update_elapsed(tween_impl<T>& tween, duration_t delta)
+    template<typename Tween>
+    static void update_elapsed(Tween& tween, duration_t delta)
     {
         tween.update_elapsed(delta);
     }

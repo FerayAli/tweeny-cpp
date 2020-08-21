@@ -18,6 +18,34 @@ tween_id_t tween_base_impl::get_id() const
     return 1;
 }
 
+void tween_base_impl::update_elapsed(duration_t delta)
+{
+    elapsed_ += delta;
+    elapsed_ = std::max(elapsed_, duration_t::zero());
+    elapsed_ = std::min(elapsed_, duration_);
+}
+
+void tween_base_impl::start()
+{
+    state_ = state_t::running;
+}
+
+void tween_base_impl::stop()
+{
+    state_ = state_t::finished;
+}
+
+void tween_base_impl::stop_when_finished()
+{
+
+}
+
+void tween_base_impl::resume()
+{}
+
+void tween_base_impl::pause()
+{}
+
 void tween_base_impl::clear()
 {
 

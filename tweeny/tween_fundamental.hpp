@@ -35,7 +35,8 @@ tween_from_to(TargetType& object,
               decltype(std::decay_t<TargetType>(object)) begin,
               decltype(std::decay_t<TargetType>(object)) end,
               duration_t duration,
-              sentinel_t sentinel)
+              sentinel_t sentinel,
+              ease_t ease_func)
 {
     auto initialize_func = [begin](TargetType* object, sentinel_t sentinel)
     {
@@ -51,28 +52,28 @@ tween_from_to(TargetType& object,
         (*object) = next;
     };
 
-    auto update_impl = create_tween_creator(&object,
-                                                   end,
-                                                   duration,
-                                                   sentinel,
-                                                   initialize_func,
-                                                   updater_func);
+    auto update_impl = create_tween_updater(&object,
+                                            end,
+                                            sentinel,
+                                            initialize_func,
+                                            updater_func,
+                                            ease_func);
 
     return tween_action(std::move(update_impl), duration);
 }
 
 template<typename TargetType>
-typename std::enable_if_t<is_shared_ptr<TargetType>::value, tween_action>
-tween_from_to(TargetType& object,
-              decltype(std::decay_t<TargetType>(object)) begin,
-              decltype(std::decay_t<TargetType>(object)) end,
-              duration_t duration)
+tween_action
+tween_from_to(std::shared_ptr<TargetType>& object,
+              decltype(std::decay_t<TargetType>(*object)) begin,
+              decltype(std::decay_t<TargetType>(*object)) end,
+              duration_t duration,
+              ease_t ease_func)
 {
-    return tween_from_to(*object.get(), begin, end, duration, object);
+    return tween_from_to(*object.get(), begin, end, duration, object, ease_func);
 }
 
 template<typename TargetType>
-//typename std::enable_if_t<!is_shared_ptr<TargetType>::value, tween_action>
 tween_action
 tween_to(TargetType& object,
          decltype(std::decay_t<TargetType>(object)) end,
@@ -93,7 +94,7 @@ tween_to(TargetType& object,
         (*object) = next;
     };
 
-    auto update_impl = create_tween_creator(&object,
+    auto update_impl = create_tween_updater(&object,
                                                    end,
                                                    duration,
                                                    sentinel,
@@ -104,7 +105,6 @@ tween_to(TargetType& object,
 }
 
 template<typename TargetType>
-//typename std::enable_if_t<is_shared_ptr<TargetType>::value, tween_action>
 tween_action
 tween_to(std::shared_ptr<TargetType>& object,
          TargetType end,
@@ -114,7 +114,7 @@ tween_to(std::shared_ptr<TargetType>& object,
 }
 
 template<typename TargetType>
-typename std::enable_if_t<!is_shared_ptr<TargetType>::value, tween_action>
+tween_action
 tween_by(TargetType& object,
          decltype(std::decay_t<TargetType>(object)) amount,
          duration_t duration,
@@ -131,7 +131,7 @@ tween_by(TargetType& object,
         prev = next;
     };
 
-    auto update_impl = create_tween_creator(&object,
+    auto update_impl = create_tween_updater(&object,
                                                    amount,
                                                    duration,
                                                    sentinel,
@@ -142,82 +142,82 @@ tween_by(TargetType& object,
 }
 
 template<typename TargetType>
-typename std::enable_if_t<is_shared_ptr<TargetType>::value, tween_action>
-tween_by(TargetType& object,
+tween_action
+tween_by(std::shared_ptr<TargetType>& object,
          decltype(std::decay_t<TargetType>(object)) amount,
          duration_t duration)
 {
     return tween_by(*object.get(), amount, duration, object);
 }
 
-template<typename T1, typename T2, typename... TweenType>
-tween_action sequence(T1&& tween1, T2&& tween2, TweenType&&... tween)
-{
-    std::vector<std::shared_ptr<tween_base_impl>> tween_holder =
-    {
-        std::make_shared<decltype(std::decay_t<T1>(tween1))>,
-        std::make_shared<decltype(std::decay_t<T2>(tween2))>,
-        std::make_shared<decltype(std::decay_t<TweenType>(tween))>
-            (std::forward<TweenType>(tween))...
-    };
+//template<typename T1, typename T2, typename... TweenType>
+//tween_action sequence(T1&& tween1, T2&& tween2, TweenType&&... tween)
+//{
+//    std::vector<std::shared_ptr<tween_base_impl>> tween_holder =
+//    {
+//        std::make_shared<decltype(std::decay_t<T1>(tween1))>,
+//        std::make_shared<decltype(std::decay_t<T2>(tween2))>,
+//        std::make_shared<decltype(std::decay_t<TweenType>(tween))>
+//            (std::forward<TweenType>(tween))...
+//    };
 
-    duration_t duration = 0ms;
-    for(auto& tween : tween_holder)
-    {
-        duration += tween->get_duration();
-    }
+//    duration_t duration = 0ms;
+//    for(auto& tween : tween_holder)
+//    {
+//        duration += tween->get_duration();
+//    }
 
-    auto updater = [tween_holder = std::move(tween_holder)
-                    , current_tween_idx = size_t(0)
-                    , prev_elapsed = duration_t::zero()
-                    , start_required = true
-                    , finished = false]
-            (duration_t delta, tween_action& self) mutable
-    {
-        if(finished)
-        {
-            return state_t::finished;
-        }
+//    auto updater = [tween_holder = std::move(tween_holder)
+//                    , current_tween_idx = size_t(0)
+//                    , prev_elapsed = duration_t::zero()
+//                    , start_required = true
+//                    , finished = false]
+//            (duration_t delta, tween_action& self) mutable
+//    {
+//        if(finished)
+//        {
+//            return state_t::finished;
+//        }
 
-        if(start_required)
-        {
-            tween_private::start(*tween_holder.at(current_tween_idx));
-            prev_elapsed = duration_t::zero();
-            start_required = false;
-        }
+//        if(start_required)
+//        {
+//            tween_private::start(*tween_holder.at(current_tween_idx));
+//            prev_elapsed = duration_t::zero();
+//            start_required = false;
+//        }
 
-        auto& current_tween = tween_holder.at(current_tween_idx);
-        auto state = tween_private::update(*current_tween, delta);
+//        auto& current_tween = tween_holder.at(current_tween_idx);
+//        auto state = tween_private::update(*current_tween, delta);
 
-        auto elapsed_diff = current_tween->get_elapsed() - prev_elapsed;
-        prev_elapsed = current_tween->get_elapsed();
+//        auto elapsed_diff = current_tween->get_elapsed() - prev_elapsed;
+//        prev_elapsed = current_tween->get_elapsed();
 
-        tween_private::update_elapsed(self, elapsed_diff);
+//        tween_private::update_elapsed(self, elapsed_diff);
 
-        if(state == state_t::finished)
-        {
-            current_tween_idx++;
-            if(current_tween_idx == tween_holder.size())
-            {
-                finished = true;
-                return state_t::finished;
-            }
-            start_required = true;
-        }
-        return state_t::running;
-    };
+//        if(state == state_t::finished)
+//        {
+//            current_tween_idx++;
+//            if(current_tween_idx == tween_holder.size())
+//            {
+//                finished = true;
+//                return state_t::finished;
+//            }
+//            start_required = true;
+//        }
+//        return state_t::running;
+//    };
 
-    auto creator = [updater = std::move(updater)](tween_action& self)
-    {
-        if(self.on_begin)
-        {
-            self.on_begin();
-        }
-        return updater;
-    };
+//    auto creator = [updater = std::move(updater)](tween_action& self)
+//    {
+//        if(self.on_begin)
+//        {
+//            self.on_begin();
+//        }
+//        return updater;
+//    };
 
-    return tween_action(std::move(creator), duration);
-}
+//    return tween_action(std::move(creator), duration);
+//}
 
 //tween_action sequence(const std::vector<tween_action>& tweenies)
 //{
@@ -225,80 +225,65 @@ tween_action sequence(T1&& tween1, T2&& tween2, TweenType&&... tween)
 //    return tween_action();
 //}
 
-template<typename... TweenType>
-tween_action together(TweenType&&... tween)
-{
-    return tween_action();
-}
+//template<typename... TweenType>
+//tween_action together(TweenType&&... tween)
+//{
+//    return tween_action();
+//}
 
-tween_action together(const std::vector<tween_action>& tweenies)
-{
-    return tween_action();
-}
+//tween_action together(const std::vector<tween_action>& tweenies)
+//{
+//    return tween_action();
+//}
 
-tween_action delay(duration_t duration)
-{
-    auto updater = [finished = false](duration_t delta, tween_action& self) mutable
-    {
-        if(finished)
-        {
-            return state_t::finished;
-        }
+//tween_action delay(duration_t duration)
+//{
+//    auto updater = [finished = false](duration_t delta, tween_action& self) mutable
+//    {
+//        if(finished)
+//        {
+//            return state_t::finished;
+//        }
 
-        tween_private::update_elapsed(self, delta);
-        if(self.get_elapsed() == self.get_duration())
-        {
-            finished = true;
-            return state_t::finished;
-        }
+//        tween_private::update_elapsed(self, delta);
+//        if(self.get_elapsed() == self.get_duration())
+//        {
+//            finished = true;
+//            return state_t::finished;
+//        }
 
-        return state_t::running;
-    };
+//        return state_t::running;
+//    };
 
-    auto creator = [updater = std::move(updater)](tween_action& self)
-    {
-        if(self.on_begin)
-        {
-            self.on_begin();
-        }
-        return updater;
-    };
+//    auto creator = [updater = std::move(updater)](tween_action& self)
+//    {
+//        if(self.on_begin)
+//        {
+//            self.on_begin();
+//        }
+//        return updater;
+//    };
 
-    return tween_action(std::move(creator), duration);
-}
+//    return tween_action(std::move(creator), duration);
+//}
 
-tween_action delay(duration_t duration, sentinel_t sentinel)
-{
-    return tween_action();
-}
+//tween_action delay(duration_t duration, sentinel_t sentinel)
+//{
+//    return tween_action();
+//}
 
-template<typename TweenType>
-tween_action repeat(TweenType& tween, size_t times)
-{
-    auto updater = [tween, elapsed_times = size_t(0)]
-            (duration_t delta, tween_action&) mutable
-    {
-//TODO
-//        auto state = tween.update(delta);
-        return state_t::running;
-    };
+//template<typename TweenType>
+//tween_action repeat(TweenType& tween, size_t times)
+//{
+//    auto updater = [tween, elapsed_times = size_t(0)]
+//            (duration_t delta, tween_action&) mutable
+//    {
+////TODO
+////        auto state = tween.update(delta);
+//        return state_t::running;
+//    };
 
-    return tween_action(std::move(updater), tween.get_duration());
-}
-
-template<typename TweenType>
-TweenType reverse(const TweenType& tween)
-{
-    TweenType reversed_tween = tween;
-    if(reversed_tween.get_direction() == direction_t::forward)
-    {
-        tween_private::set_direction(reversed_tween, direction_t::backward);
-    }
-    else
-    {
-        tween_private::set_direction(reversed_tween, direction_t::forward);
-    }
-    return reversed_tween;
-}
+//    return tween_action(std::move(updater), tween.get_duration());
+//}
 
 } //end of namespace tweeny

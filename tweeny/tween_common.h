@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 #include <chrono>
+#include <functional>
+
 using namespace std::chrono_literals;
 
 namespace tweeny
@@ -8,6 +10,8 @@ namespace tweeny
 using duration_t = std::chrono::nanoseconds;
 using sentinel_t = std::weak_ptr<void>;
 using tween_id_t = size_t;
+using ease_t = std::function<float(float)>;
+
 enum class state_t
 {
     running,
@@ -15,23 +19,19 @@ enum class state_t
     finished
 };
 
-enum class direction_t
-{
-    forward,
-    backward
-};
-
-template<typename Object>
-struct is_shared_ptr : std::false_type {};
-
-template<typename Object>
-struct is_shared_ptr<std::shared_ptr<Object>> : std::true_type {};
-
 template<typename Object>
 struct tween_non_fundamental_export {};
 
-//Calculate the required speed multiplier in order to finish a running
-//tween in given amount of time. This multiplier can the be used as parameter
-//to set_speed function.
-//float calculate_speed_multiplier()
+namespace math
+{
+//Make things constexpr
+float square(float x, uint32_t n);
+float flip(float x);
+float mix(float a, float b, float weight, float t);
+float crossfade(float a, float b, float t);
+float scale(float a, float t);
+float reverse_scale(float a, float t);
+float arch(float t);
+}
+
 }

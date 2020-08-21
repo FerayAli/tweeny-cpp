@@ -13,12 +13,12 @@ struct tween_manager
     template<typename T>
     tween_id_t start(tween_impl<T> tween)
     {
-        tween_info& info = tweenies_[tween.get_id()];
+        tween_info& info = tweenies_[1];
         info.tween = std::make_unique<tween_impl<T>>(std::move(tween));
 
         tween_private::start(*info.tween);
 
-        return info.tween->get_id();
+        return 1;
     }
 
     template<typename T>
@@ -30,22 +30,22 @@ struct tween_manager
     void stop(tween_id_t id);
 
     template<typename T>
-    void stop_when_finished(const tween_impl<T>& tween)
-    {
-        stop_when_finished(tween.get_id());
-    }
+    void stop_when_finished(const tween_impl<T>& tween){}
 
-    void stop_when_finished(tween_id_t id);
+    void stop_when_finished(tween_id_t id){}
 
     template<typename T>
-    void stop_and_finish(const tween_impl<T>& tween, duration_t finish_after = 0ms)
-    {
-        stop_when_finished(tween.get_id(), finish_after);
-    }
+    void stop_and_finish(const tween_impl<T>& tween, duration_t finish_after = 0ms);
 
     void stop_and_finish(tween_id_t id, duration_t finish_after = 0ms);
 
-    void update(duration_t delta);
+    void update(duration_t delta)
+    {
+        for(auto& info : tweenies_)
+        {
+            tween_private::update(*info.second.tween, delta);
+        }
+    }
 
 
 

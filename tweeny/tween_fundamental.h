@@ -2,6 +2,7 @@
 #include "tween_common.h"
 #include "tween_updater.h"
 #include "tween_private.h"
+#include "tween_ease.h"
 #include <vector>
 
 namespace tweeny
@@ -19,14 +20,16 @@ tween_from_to(TargetType& object,
               decltype(std::decay_t<TargetType>(object)) begin,
               decltype(std::decay_t<TargetType>(object)) end,
               duration_t duration,
-              sentinel_t sentinel);
+              sentinel_t sentinel,
+              ease_t ease_func = ease::linear);
 
 template<typename TargetType>
 tween_action
 tween_from_to(std::shared_ptr<TargetType>& object,
-              decltype(std::decay_t<TargetType>(object)) begin,
-              decltype(std::decay_t<TargetType>(object)) end,
-              duration_t duration);
+              decltype(std::decay_t<TargetType>(*object)) begin,
+              decltype(std::decay_t<TargetType>(*object)) end,
+              duration_t duration,
+              ease_t ease_func = ease::linear);
 
 template<typename TargetType>
 tween_action
@@ -54,25 +57,22 @@ tween_by(std::shared_ptr<TargetType>& object,
          decltype(std::decay_t<TargetType>(object)) amount,
          duration_t duration);
 
-template<typename... TweenType>
-tween_action sequence(TweenType&&... tween);
+//template<typename... TweenType>
+//tween_action sequence(TweenType&&... tween);
 
 //tween_action sequence(const std::vector<tween_action>& tweenies);
 
-template<typename... TweenType>
-tween_action together(TweenType&&... tween);
+//template<typename... TweenType>
+//tween_action together(TweenType&&... tween);
 
-tween_action together(const std::vector<tween_action>& tweenies);
+//tween_action together(const std::vector<tween_action>& tweenies);
 
-tween_action delay(duration_t duration);
+//tween_action delay(duration_t duration);
 
-tween_action delay(duration_t duration, sentinel_t sentinel);
+//tween_action delay(duration_t duration, sentinel_t sentinel);
 
-template<typename TweenType>
-tween_action repeat(TweenType& tween, size_t times);
-
-template<typename TweenType>
-TweenType reverse(const TweenType& tween);
+//template<typename TweenType>
+//tween_action repeat(TweenType& tween, size_t times);
 
 } //end of namespace tweeny
 

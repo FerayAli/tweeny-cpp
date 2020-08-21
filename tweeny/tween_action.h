@@ -1,6 +1,5 @@
 #pragma once
 #include "tween_value.h"
-#include <iostream>
 
 namespace tweeny
 {
