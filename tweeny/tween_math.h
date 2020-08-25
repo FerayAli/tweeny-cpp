@@ -40,3 +40,5 @@ float arch(float t);
 
 } //end of namespace math
 } //end of namespace tweeny
+
+#include "tween_math.hpp"

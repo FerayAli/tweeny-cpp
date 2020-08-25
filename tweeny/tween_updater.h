@@ -2,6 +2,7 @@
 #include "tween_action.h"
 #include "tween_private.h"
 #include "tween_ease.h"
+#include "tween_math.h"
 
 namespace tweeny
 {
@@ -47,8 +48,7 @@ auto create_tween_updater(Object* object,
 
         tween_private::update_elapsed(self, delta);
 
-        const float progress = ease_func(self.get_progress());
-        const TargetType next = begin + ((end - begin) * progress);
+		const TargetType next = math::lerp(begin, end, self.get_progress(), ease_func);
         update_func(object, next);
 
         if(self.on_step)
@@ -109,7 +109,7 @@ auto create_tween_value_updater(TargetType&& begin,
         tween_private::update_elapsed(self, delta);
 
 		info.progress = self.get_progress();
-		info.current = info.begin + ((info.end - info.begin) * info.progress);
+		info.current = math::lerp(info.begin, info.end, info.progress, ease_func);
 
         if(self.on_step)
         {

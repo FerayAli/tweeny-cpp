@@ -50,17 +50,12 @@ struct tween_access<Sprite>
         return sprite.get_pos();
     }
 };
-
-}
-
-float lerp(float begin, float end, float progress)
-{
-    return begin + ((end - begin) * progress);
 }
 
 int main()
 {
-    std::cout << lerp(50, 100, 0.0f) << std::endl;
+	test_core();
+
 
 //    tweeny::tween_value<float> t = tweeny::tween_value_from_to(0.0f, 100.0f, 1s);
 
