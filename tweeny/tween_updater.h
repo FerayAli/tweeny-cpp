@@ -11,18 +11,18 @@ template<typename Object,
          typename InitializeFunc,
          typename UpdateFunc>
 auto create_tween_updater(Object* object,
-                     TargetType end,
-                     sentinel_t sentinel,
+					 TargetType&& end,
+					 const sentinel_t& sentinel,
                      InitializeFunc&& initialize_func,
                      UpdateFunc&& update_func,
-                     ease_t ease_func = ease::linear)
+					 const ease_t& ease_func = ease::linear)
 {
     return [object
-            , begin = initialize_func(object, sentinel)
-            , end = std::move(end)
-            , sentinel = std::move(sentinel)
+			, begin = initialize_func(object, sentinel)
+			, end = std::forward<TargetType>(end)
+			, sentinel = sentinel
             , update_func = std::forward<UpdateFunc>(update_func)
-            , ease_func = std::move(ease_func)
+			, ease_func = ease_func
             , finished = false]
     (duration_t delta, tween_action& self) mutable -> state_t
     {
@@ -70,18 +70,27 @@ auto create_tween_updater(Object* object,
     };
 }
 
-template<typename TargetType,
-         typename InitializeFunc,
-         typename UpdateFunc>
-auto create_tween_value_creator(TargetType end,
-                                duration_t duration,
-                                InitializeFunc&& initialize_func,
-                                UpdateFunc&& update_func)
+template<typename TargetType>
+auto create_tween_value_updater(TargetType&& begin,
+								TargetType&& end,
+								const duration_t& duration,
+								const ease_t& ease_func)
 {
-    auto updater = [begin = initialize_func()
-            , end
-            , update_func = std::move(update_func)
-            , finished = false]
+	auto get_info = [](TargetType&& begin, TargetType&& end, const duration_t& duration)
+	{
+		info_t<TargetType> info;
+		info.begin = std::forward<TargetType>(begin);
+		info.end =  std::forward<TargetType>(end);
+		info.current = info.begin;
+		info.elapsed = duration_t::zero();
+		info.duration = duration;
+		info.progress = 0.0f;
+		return info;
+	};
+
+	return [info = get_info(std::forward<TargetType>(begin), std::forward<TargetType>(end), duration)
+			, ease_func = ease_func
+			, finished = false]
     (duration_t delta, tween_value<TargetType>& self) mutable -> state_t
     {
         if(finished)
@@ -91,8 +100,7 @@ auto create_tween_value_creator(TargetType end,
 
         if(self.get_duration() == duration_t::zero())
         {
-            auto& value = tween_private::get_value_by_ref(self);
-            update_func(&value, end);
+			update_func(info.current, info.end);
             finished = true;
 
             return state_t::finished;
@@ -100,14 +108,12 @@ auto create_tween_value_creator(TargetType end,
 
         tween_private::update_elapsed(self, delta);
 
-        const float progress = self.get_progress();
-        const TargetType next = begin + ((end - begin) * progress);
-        auto& value = tween_private::get_value_by_ref(self);
-        update_func(&value, next);
+		info.progress = self.get_progress();
+		info.current = info.begin + ((info.end - info.begin) * info.progress);
 
         if(self.on_step)
         {
-            self.on_step(value);
+			self.on_step(info);
         }
 
         if(self.get_elapsed() == self.get_duration())
@@ -115,27 +121,13 @@ auto create_tween_value_creator(TargetType end,
             finished = true;
             if(self.on_end)
             {
-                self.on_end(value);
+				self.on_end(info);
             }
             return state_t::finished;
         }
 
         return state_t::running;
     };
-
-    auto creator = [updater = std::move(updater)
-                    , begin = initialize_func()
-                    , end]
-            (tween_impl<TargetType>& self)
-    {
-        if(self.on_begin)
-        {
-            self.on_begin(begin);
-        }
-        return std::make_tuple(updater, begin);
-    };
-
-    return creator;
 }
 
 }

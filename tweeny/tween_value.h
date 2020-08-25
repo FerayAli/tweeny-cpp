@@ -4,6 +4,19 @@
 namespace tweeny
 {
 
+template<typename TargetType>
+struct info_t
+{
+	TargetType begin = {};
+	TargetType end = {};
+	TargetType current = {};
+
+	duration_t elapsed = duration_t::zero();
+	duration_t duration = duration_t::zero();
+
+	float progress = 0.0f;
+};
+
 template<typename T>
 struct tween_impl : public tween_base_impl
 {
@@ -24,19 +37,16 @@ struct tween_impl : public tween_base_impl
     tween_impl& operator=(const tween_impl&) = default;
     tween_impl& operator=(tween_impl&&) = default;
 
-    std::function<void(T)> on_begin;
-    std::function<void(T)> on_step;
-    std::function<void(T)> on_end;
+	std::function<void(const info_t<T>&)> on_begin;
+	std::function<void(const info_t<T>&)> on_step;
+	std::function<void(const info_t<T>&)> on_end;
 private:
     friend struct tween_private;
 
     void start() override
     {
         tween_base_impl::start();
-        auto result = creator_(*this);
-
-        updater_ = std::get<0>(result);
-        value_ = std::get<1>(result);
+		updater_ = creator_(*this);
     }
 
     state_t update(duration_t delta) override
@@ -51,7 +61,6 @@ private:
         return state_;
     }
 
-    T value_{};
     creator_t creator_;
     updater_t updater_;
 };

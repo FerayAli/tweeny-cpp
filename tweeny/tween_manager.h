@@ -1,8 +1,8 @@
 #pragma once
 #include "tween_action.h"
 #include "tween_private.h"
-#include "tween_fundamental.h"
-#include "tween_non_fundamental.h"
+#include "tween_core.h"
+#include "tween_ex.h"
 #include <unordered_map>
 
 namespace tweeny

@@ -42,17 +42,17 @@ struct tween_private
         tween.update_elapsed(delta);
     }
 
-    template<typename T>
-    static T& get_value_by_ref(tween_impl<T>& tween)
-    {
-        return tween.value_;
-    }
-
     template<typename Tween>
     static state_t update(Tween& tween, duration_t delta)
     {
         return tween.update(delta);
     }
+
+	template<typename Tween>
+	static bool is_stop_when_finished_requested(Tween& tween)
+	{
+		return tween.stop_when_finished_;
+	}
 };
 
 } //end of namespace

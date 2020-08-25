@@ -1,4 +1,5 @@
 #include <iostream>
+#include "test_core.h"
 #include <tweeny/tweeny.h>
 #include <vector>
 
@@ -37,7 +38,7 @@ private:
 namespace tweeny
 {
 template<>
-struct tween_non_fundamental_export<Sprite>
+struct tween_access<Sprite>
 {
     static void set_position(Sprite& sprite, float x)
     {

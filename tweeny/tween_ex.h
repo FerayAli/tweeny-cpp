@@ -265,5 +265,5 @@ move_by(std::shared_ptr<Object>& object,
 
 } //end of namespace
 
-#include "tween_non_fundamental.hpp"
+#include "tween_ex.hpp"
 

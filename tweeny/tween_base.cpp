@@ -21,7 +21,7 @@ duration_t tween_base_impl::get_duration() const
 
 tween_id_t tween_base_impl::get_id() const
 {
-    return 1;
+	return 1;
 }
 
 void tween_base_impl::update_elapsed(duration_t delta)

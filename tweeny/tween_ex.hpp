@@ -1,5 +1,5 @@
 #pragma once
-#include "tween_non_fundamental.h"
+#include "tween_ex.h"
 
 namespace tweeny
 {
@@ -30,7 +30,7 @@ move_from_to(Object& object,
 
         auto updater_func = [](Object* object, TargetType next) mutable
         {
-            tween_non_fundamental_export<Object>::set_position(*object, next);
+			tween_access<Object>::set_position(*object, next);
         };
 
         return create_tween_updater(&object, end, sentinel, std::move(initialize_func), std::move(updater_func));
@@ -64,7 +64,7 @@ move_from_to_local(Object& object,
 
     auto updater_func = [](Object* object, TargetType next) mutable
     {
-        tween_non_fundamental_export<Object>::set_position_local(*object, next);
+		tween_access<Object>::set_position_local(*object, next);
     };
 
 //    auto creator = create_tween_updater(&object,
@@ -107,12 +107,12 @@ move_to(Object& object,
             {
                 return TargetType{};
             }
-            return tween_non_fundamental_export<Object>::get_position(*object);
+			return tween_access<Object>::get_position(*object);
         };
 
         auto updater_func = [](Object* object, TargetType next) mutable
         {
-            tween_non_fundamental_export<Object>::set_position(*object, next);
+			tween_access<Object>::set_position(*object, next);
         };
 
         return create_tween_updater(&object, end, sentinel, std::move(initialize_func), std::move(updater_func));
@@ -143,12 +143,12 @@ move_to_local(Object& object,
         {
             return TargetType{};
         }
-        return tween_non_fundamental_export<Object>::get_position_local(*object);
+		return tween_access<Object>::get_position_local(*object);
     };
 
     auto updater_func = [](Object* object, TargetType next) mutable
     {
-        tween_non_fundamental_export<Object>::set_position_local(*object, next);
+		tween_access<Object>::set_position_local(*object, next);
     };
 
 //    auto creator = create_tween_updater(&object,
@@ -183,12 +183,12 @@ move_by(Object& object,
         {
             return TargetType{};
         }
-        return tween_non_fundamental_export<Object>::get_position(*object);
+		return tween_access<Object>::get_position(*object);
     };
 
     auto updater_func = [prev = TargetType{}](TargetType* object, TargetType next) mutable
     {
-        tween_non_fundamental_export<Object>::set_position(*object, (next - prev));
+		tween_access<Object>::set_position(*object, (next - prev));
         prev = next;
     };
 

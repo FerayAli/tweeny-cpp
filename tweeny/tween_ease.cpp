@@ -1,5 +1,6 @@
 #include "tween_ease.h"
-#include <cmath>
+#include "tween_math.h"
+#include <math.h>
 
 namespace tweeny
 {
