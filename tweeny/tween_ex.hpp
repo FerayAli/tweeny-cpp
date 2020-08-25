@@ -1,5 +1,6 @@
 #pragma once
 #include "tween_ex.h"
+#include <iostream>
 
 namespace tweeny
 {
@@ -208,18 +209,16 @@ move_by(Object& object,
 			self.on_begin();
 		}
 
-		auto initialize_func = [](Object* object, sentinel_t sentinel)
+		auto initialize_func = [](Object*, sentinel_t)
 		{
-			if(sentinel.expired())
-			{
-				return TargetType{};
-			}
-			return tween_access<Object>::get_position(*object);
+			return TargetType{};
 		};
 
-		auto updater_func = [prev = TargetType{}](TargetType* object, TargetType next) mutable
+		auto updater_func = [prev = TargetType{}](Object* object, TargetType next) mutable
 		{
-			tween_access<Object>::set_position(*object, (next - prev));
+			const auto current = tween_access<Object>::get_position(*object);
+			tween_access<Object>::set_position(*object, current + (next - prev));
+
 			prev = next;
 		};
 

@@ -34,6 +34,7 @@ void tween_base_impl::update_elapsed(duration_t delta)
 void tween_base_impl::start()
 {
     state_ = state_t::running;
+	elapsed_ = duration_t::zero();
 }
 
 void tween_base_impl::stop()
