@@ -23,31 +23,27 @@ struct tween_base_impl
     duration_t get_elapsed() const;
     duration_t get_duration() const;
 
-    bool is_empty();
-    void clear();
+	tween_id_t get_id() const;
 
-    tween_id_t get_id() const;
+	virtual bool is_empty() = 0;
+	virtual void clear() = 0;
 protected:
     virtual state_t update(duration_t delta) = 0;
-
-    void update_elapsed(duration_t delta);
-
-    virtual void start();
+	virtual void start();
 
     void stop();
+	void resume();
+	void pause();
 
-    void stop_when_finished();
-
-    void resume();
-    void pause();
-
-    tween_id_t id_;
+	tween_id_t id_ = 1;
     state_t state_ = state_t::finished;
-
-    bool stop_when_finished_ = false;
 
     duration_t elapsed_ = duration_t::zero();
     duration_t duration_ = duration_t::zero();
+
+	bool stop_when_finished_ = false;
+
+	float speed_multiplier_ = 1.0f;
 };
 
 }

@@ -10,60 +10,57 @@ namespace tweeny
 
 struct tween_manager
 {
-    template<typename T>
-    tween_id_t start(tween_impl<T> tween)
-    {
-        tween_info& info = tweenies_[tween.get_id()];
+	template<typename T>
+	tween_id_t start(tween_impl<T> tween);
 
-        info.tween = std::make_unique<tween_impl<T>>(std::move(tween));
-
-        tween_private::start(*info.tween);
-
-        auto i = info.tween->get_id();
-        return i;
-    }
-
-    template<typename T>
-    void stop(const tween_impl<T>& tween)
-    {
-        stop(tween.get_id());
-    }
+	template<typename T>
+	void stop(const tween_impl<T>& tween);
     void stop(tween_id_t id);
     void stop_all();
 
-    template<typename T>
-    void stop_when_finished(const tween_impl<T>& tween)
-    {
-        stop_when_finished(tween.get_id());
-    }
+	template<typename T>
+	void pause(const tween_impl<T>& tween);
+	void pause(const tween_id_t id);
+	void pause_all();
 
+	template<typename T>
+	void resume(const tween_impl<T>& tween);
+	void resume(const tween_id_t id);
+	void resume_all();
+
+	template<typename T>
+	void stop_when_finished(const tween_impl<T>& tween);
     void stop_when_finished(tween_id_t id);
+	void stop_when_finished_all();
 
-    template<typename T>
-    void stop_and_finish(const tween_impl<T>& tween, duration_t finish_after = 0ms)
-    {
-        stop_when_finished(tween.get_id(), finish_after);
-    }
-
+	template<typename T>
+	void stop_and_finish(const tween_impl<T>& tween, duration_t finish_after = 0ms);
     void stop_and_finish(tween_id_t id, duration_t finish_after = 0ms);
+	void stop_and_finish_all();
 
-    void update(duration_t delta);
+	template<typename T>
+	bool is_stopping(const tween_impl<T>& tween);
+	bool is_stopping(tween_id_t id);
 
+	template<typename T>
+	bool is_running(const tween_impl<T>& tween);
+	bool is_running(tween_id_t id);
 
+	template<typename T>
+	bool is_paused(const tween_impl<T>& tween);
+	bool is_paused(tween_id_t id);
 
+	template<typename T>
+	void set_speed_multiplier(const tween_impl<T>& tween, float speed_multiplier = 1.0f);
+	void set_speed_multiplier(tween_id_t id, float speed_multiplier = 1.0f);
 
+	template<typename T>
+	float get_speed_multiplier(const tween_impl<T>& tween);
+	float get_speed_multiplier(tween_id_t id);
 
-    //stop_and_finish
-    //resume
-    //pause
-    //set_speed
-    //set_remaining_duration
-    //get_speed
-    //is_stopping
-    //is_running
-    //is_paused
-    //update
-    size_t get_tweenies_count() const;
+	size_t get_tweenies_count() const;
+
+	void update(duration_t delta);
 private:
     struct tween_info
     {
@@ -75,4 +72,6 @@ private:
     std::unordered_map<tween_id_t, std::unique_ptr<tween_base_impl>> pending_tweenies_;
 };
 
-}
+} //end of namespace tweeny
+
+#include "tween_manager.hpp"

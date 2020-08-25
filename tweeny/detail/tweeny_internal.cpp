@@ -22,20 +22,10 @@ void update(duration_t delta)
     }
 }
 
-const std::string& get_current_scope_name()
-{
-    return current_scope_;
-}
-
 managers& get_managers()
 {
     return managers_;
 }
 
-void set_current_scope_name(const std::string& scope_name)
-{
-    current_scope_ = scope_name;
-}
-
-}
-}
+} //end of namespace detail
+} //end of namespace tweeny

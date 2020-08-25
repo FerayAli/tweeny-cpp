@@ -21,14 +21,7 @@ duration_t tween_base_impl::get_duration() const
 
 tween_id_t tween_base_impl::get_id() const
 {
-	return 1;
-}
-
-void tween_base_impl::update_elapsed(duration_t delta)
-{
-    elapsed_ += delta;
-    elapsed_ = std::max(elapsed_, duration_t::zero());
-    elapsed_ = std::min(elapsed_, duration_);
+	return id_;
 }
 
 void tween_base_impl::start()
@@ -42,25 +35,20 @@ void tween_base_impl::stop()
     state_ = state_t::finished;
 }
 
-void tween_base_impl::stop_when_finished()
-{
-
-}
-
 void tween_base_impl::resume()
-{}
+{
+	if(state_ == state_t::running)
+	{
+		state_ = state_t::paused;
+	}
+}
 
 void tween_base_impl::pause()
-{}
-
-void tween_base_impl::clear()
 {
-
-}
-
-bool tween_base_impl::is_empty()
-{
-    return false;
+	if(state_ == state_t::paused)
+	{
+		state_ = state_t::running;
+	}
 }
 
 duration_t tween_base_impl::get_elapsed() const
