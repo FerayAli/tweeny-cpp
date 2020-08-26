@@ -8,8 +8,8 @@ namespace tweeny
 template<typename Object, typename TargetType>
 tween_action
 move_from_to(Object& object,
-             TargetType&& begin,
-             TargetType&& end,
+			 const TargetType& begin,
+			 const TargetType& end,
              const duration_t& duration,
 			 const sentinel_t& sentinel,
 			 const ease_t& ease_func = ease::linear);
@@ -282,8 +282,8 @@ tween_action
 shake(Object& object,
 	  TargetType initial_force,
 	  const sentinel_t& sentinel,
-	  const duration_t& duration = 700ms,
-	  uint32_t shake_count = 4);
+	  const duration_t& duration = 1s,
+	  uint32_t shake_count = 6);
 
 template<typename Object, typename TargetType>
 tween_action

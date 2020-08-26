@@ -10,15 +10,15 @@ namespace tweeny
 template<typename Object, typename TargetType>
 tween_action
 move_from_to(Object& object,
-             TargetType&& begin,
-             TargetType&& end,
+			 const TargetType& begin,
+			 const TargetType& end,
              const duration_t& duration,
 			 const sentinel_t& sentinel,
 			 const ease_t& ease_func)
 {
     auto creator = [&object
-                    , begin = std::forward<TargetType>(begin)
-                    , end = std::forward<TargetType>(end)
+					, begin = begin
+					, end = end
 					, sentinel = sentinel
 					, ease_func = ease_func]
     (tween_action& self)
