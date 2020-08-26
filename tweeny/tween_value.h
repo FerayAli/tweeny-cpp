@@ -21,7 +21,7 @@ template<typename T>
 struct tween_impl : public tween_base_impl
 {
     using updater_t = std::function<state_t(duration_t, tween_impl<T>&)>;
-    using creator_t = std::function<std::tuple<updater_t, T>(tween_impl<T>&)>;
+	using creator_t = std::function<updater_t(tween_impl<T>&)>;
 
     ~tween_impl() = default;
     tween_impl() = default;

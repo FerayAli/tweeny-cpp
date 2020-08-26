@@ -48,7 +48,7 @@ auto create_tween_updater(Object* object,
 
         tween_private::update_elapsed(self, delta);
 
-		const TargetType next = math::lerp(begin, end, self.get_progress(), ease_func);
+		const auto next = math::lerp(begin, end, self.get_progress(), ease_func);
         update_func(object, next);
 
         if(self.on_step)

@@ -277,9 +277,20 @@ fade_by(const std::shared_ptr<Object>& object,
 		const duration_t& duration,
 		const ease_t& ease_func = ease::linear);
 
-//blink
-//shake(direction_angle)
-//pulse
+template<typename Object, typename TargetType>
+tween_action
+shake(Object& object,
+	  TargetType initial_force,
+	  const sentinel_t& sentinel,
+	  const duration_t& duration = 700ms,
+	  uint32_t shake_count = 4);
+
+template<typename Object, typename TargetType>
+tween_action
+shake(const std::shared_ptr<Object>& object,
+	  TargetType initial_force,
+	  const duration_t& duration = 1s,
+	  uint32_t shake_count = 6);
 
 } //end of namespace
 

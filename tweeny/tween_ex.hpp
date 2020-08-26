@@ -1,6 +1,8 @@
 #pragma once
 #include "tween_ex.h"
-#include <iostream>
+#include "tween_core.h"
+#include "tween_math.h"
+#include <vector>
 
 namespace tweeny
 {
@@ -31,7 +33,7 @@ move_from_to(Object& object,
             return begin;
         };
 
-        auto updater_func = [](Object* object, TargetType next) mutable
+		auto updater_func = [](Object* object, const decltype(std::decay_t<TargetType>(end))& next) mutable
         {
 			tween_access<Object>::set_position(*object, next);
         };
@@ -124,12 +126,12 @@ move_to(Object& object,
 		{
 			if(sentinel.expired())
 			{
-				return TargetType{};
+				return decltype(std::decay_t<TargetType>(end)){};
 			}
 			return tween_access<Object>::get_position(*object);
 		};
 
-		auto updater_func = [](Object* object, TargetType next) mutable
+		auto updater_func = [](Object* object, const decltype(std::decay_t<TargetType>(end))& next) mutable
 		{
 			tween_access<Object>::set_position(*object, next);
 		};
@@ -216,10 +218,11 @@ move_by(Object& object,
 
 		auto initialize_func = [](Object*, sentinel_t)
 		{
-			return TargetType{};
+			return decltype(std::decay_t<TargetType>(amount)){};
 		};
 
-		auto updater_func = [prev = TargetType{}](Object* object, TargetType next) mutable
+		auto updater_func = [prev = decltype(std::decay_t<TargetType>(amount)){}]
+			(Object* object, const decltype(std::decay_t<TargetType>(amount))& next) mutable
 		{
 			const auto current = tween_access<Object>::get_position(*object);
 			tween_access<Object>::set_position(*object, current + (next - prev));
@@ -274,7 +277,7 @@ scale_from_to(Object& object,
 			return begin;
 		};
 
-		auto updater_func = [](Object* object, TargetType next) mutable
+		auto updater_func = [](Object* object, const decltype(std::decay_t<TargetType>(end))& next) mutable
 		{
 			tween_access<Object>::set_scale(*object, next);
 		};
@@ -329,7 +332,7 @@ scale_to(Object& object,
 {
 	auto creator = [&object
 					, end = std::forward<TargetType>(end)
-						, sentinel = sentinel
+					, sentinel = sentinel
 					, ease_func = ease_func]
 		(tween_action& self)
 	{
@@ -342,12 +345,12 @@ scale_to(Object& object,
 		{
 			if(sentinel.expired())
 			{
-				return TargetType{};
+				return decltype(std::decay_t<TargetType>(end)){};
 			}
 			return tween_access<Object>::get_scale(*object);
 		};
 
-		auto updater_func = [](Object* object, TargetType next) mutable
+		auto updater_func = [](Object* object, const decltype(std::decay_t<TargetType>(end))& next) mutable
 		{
 			tween_access<Object>::set_scale(*object, next);
 		};
@@ -407,10 +410,11 @@ scale_by(Object& object,
 
 		auto initialize_func = [](Object*, sentinel_t)
 		{
-			return TargetType{};
+			return decltype(std::decay_t<TargetType>(amount)){};
 		};
 
-		auto updater_func = [prev = TargetType{}](Object* object, TargetType next) mutable
+		auto updater_func = [prev = TargetType{}]
+			(Object* object, const decltype(std::decay_t<TargetType>(amount))& next) mutable
 		{
 			const auto current = tween_access<Object>::get_scale(*object);
 			tween_access<Object>::set_scale(*object, current + (next - prev));
@@ -465,7 +469,7 @@ rotate_from_to(Object& object,
 			return begin;
 		};
 
-		auto updater_func = [](Object* object, TargetType next) mutable
+		auto updater_func = [](Object* object, const decltype(std::decay_t<TargetType>(end))& next) mutable
 		{
 			tween_access<Object>::set_rotation(*object, next);
 		};
@@ -533,12 +537,12 @@ rotate_to(Object& object,
 		{
 			if(sentinel.expired())
 			{
-				return TargetType{};
+				return decltype(std::decay_t<TargetType>(end)){};
 			}
 			return tween_access<Object>::get_rotation(*object);
 		};
 
-		auto updater_func = [](Object* object, TargetType next) mutable
+		auto updater_func = [](Object* object, const decltype(std::decay_t<TargetType>(end))& next) mutable
 		{
 			tween_access<Object>::set_rotation(*object, next);
 		};
@@ -598,10 +602,11 @@ rotate_by(Object& object,
 
 		auto initialize_func = [](Object*, sentinel_t)
 		{
-			return TargetType{};
+			return decltype(std::decay_t<TargetType>(amount)){};
 		};
 
-		auto updater_func = [prev = TargetType{}](Object* object, TargetType next) mutable
+		auto updater_func = [prev = TargetType{}]
+			(Object* object, const decltype(std::decay_t<TargetType>(amount))& next) mutable
 		{
 			const auto current = tween_access<Object>::get_rotation(*object);
 			tween_access<Object>::set_rotation(*object, current + (next - prev));
@@ -656,7 +661,7 @@ fade_from_to(Object& object,
 			return begin;
 		};
 
-		auto updater_func = [](Object* object, TargetType next) mutable
+		auto updater_func = [](Object* object, const decltype(std::decay_t<TargetType>(end))& next) mutable
 		{
 			tween_access<Object>::set_opacity(*object, next);
 		};
@@ -711,12 +716,12 @@ fade_to(Object& object,
 		{
 			if(sentinel.expired())
 			{
-				return TargetType{};
+				return decltype(std::decay_t<TargetType>(end)){};
 			}
 			return tween_access<Object>::get_opacity(*object);
 		};
 
-		auto updater_func = [](Object* object, TargetType next) mutable
+		auto updater_func = [](Object* object, const decltype(std::decay_t<TargetType>(end))& next) mutable
 		{
 			tween_access<Object>::set_opacity(*object, next);
 		};
@@ -763,10 +768,11 @@ fade_by(Object& object,
 
 		auto initialize_func = [](Object*, sentinel_t)
 		{
-			return TargetType{};
+			return decltype(std::decay_t<TargetType>(amount)){};
 		};
 
-		auto updater_func = [prev = TargetType{}](Object* object, TargetType next) mutable
+		auto updater_func = [prev = TargetType{}]
+			(Object* object, const decltype(std::decay_t<TargetType>(amount))& next) mutable
 		{
 			const auto current = tween_access<Object>::get_opacity(*object);
 			tween_access<Object>::set_opacity(*object, current + (next - prev));
@@ -793,6 +799,42 @@ fade_by(const std::shared_ptr<Object>& object,
 		const ease_t& ease_func)
 {
 	return fade_by(*object.get(), std::forward<TargetType>(amount), duration, object, ease_func);
+}
+
+template<typename Object, typename TargetType>
+tween_action
+shake(Object& object,
+	  TargetType initial_force,
+	  const sentinel_t& sentinel,
+	  const duration_t& duration,
+	  uint32_t shake_count)
+{
+	shake_count = math::clamp(shake_count, 1u, 25u);
+	const auto total_action_count = shake_count * 4;
+	const auto action_duration = duration / total_action_count;
+
+	std::vector<tween_action> tweenies;
+	tweenies.reserve(total_action_count);
+	for(size_t i = 0; i < shake_count; i++)
+	{
+		tweenies.emplace_back(move_by(object, initial_force, action_duration, sentinel));
+		tweenies.emplace_back(move_by(object, -initial_force, action_duration, sentinel));
+		tweenies.emplace_back(move_by(object, -initial_force, action_duration, sentinel));
+		tweenies.emplace_back(move_by(object, initial_force, action_duration, sentinel));
+		initial_force = initial_force * 0.75f;
+	}
+
+	return sequence(tweenies);
+}
+
+template<typename Object, typename TargetType>
+tween_action
+shake(const std::shared_ptr<Object>& object,
+	  TargetType initial_force,
+	  const duration_t& duration,
+	  uint32_t shake_count)
+{
+	return shake(*object.get(), std::move(initial_force), object, duration, shake_count);
 }
 
 } //end of namespace tweeny

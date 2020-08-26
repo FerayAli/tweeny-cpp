@@ -71,7 +71,7 @@ void tween_manager::stop_when_finished_all()
 	}
 }
 
-void tween_manager::stop_and_finish(tween_id_t id, duration_t finish_after)
+void tween_manager::stop_and_finish(tween_id_t /*id*/, duration_t /*finish_after*/)
 {
 	//TODO
 //	auto iter = tweenies_.find(tween);

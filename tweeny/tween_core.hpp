@@ -7,8 +7,8 @@ namespace tweeny
 
 template<typename TargetType>
 tween_value<TargetType>
-tween_value_from_to(TargetType&& begin,
-					TargetType&& end,
+tween_value_from_to(const TargetType& begin,
+					const TargetType& end,
 					const duration_t& duration,
 					const ease_t& ease_func)
 {
@@ -28,7 +28,7 @@ tween_value_from_to(TargetType&& begin,
 
 		if(self.on_begin)
 		{
-			self.on_begin(info);
+			self.on_begin(std::move(info));
 		}
 
 		return create_tween_value_updater(begin,
@@ -137,9 +137,9 @@ tween_to(TargetType& object,
 
 template<typename TargetType>
 tween_action
-tween_to(std::shared_ptr<TargetType>& object,
-         TargetType end,
-		 duration_t duration,
+tween_to(const std::shared_ptr<TargetType>& object,
+		 const decltype(std::decay_t<TargetType>(*object))& end,
+		 const duration_t& duration,
 		 const ease_t& ease_func)
 {
 	return tween_to(*object.get(), end, duration, object, ease_func);
@@ -187,9 +187,9 @@ tween_by(TargetType& object,
 
 template<typename TargetType>
 tween_action
-tween_by(std::shared_ptr<TargetType>& object,
-         decltype(std::decay_t<TargetType>(object)) amount,
-		 duration_t duration,
+tween_by(const std::shared_ptr<TargetType>& object,
+		 decltype(std::decay_t<TargetType>(*object)) amount,
+		 const duration_t& duration,
 		 const ease_t& ease_func)
 {
 	return tween_by(*object.get(), amount, duration, object, ease_func);
@@ -215,7 +215,7 @@ tween_action sequence(const std::vector<tween_impl<TargetType>>& tweenies)
 	tween_holder.reserve(tweenies.size());
 	for(const auto& tween : tweenies)
 	{
-		tween_holder.emplace_back(std::make_shared<TargetType>(tween));
+		tween_holder.emplace_back(std::make_shared<tween_impl<TargetType>>(tween));
 	}
 
 	return sequence(tween_holder);
@@ -242,7 +242,7 @@ tween_action together(const std::vector<tween_impl<TargetType>>& tweenies)
 	tween_holder.reserve(tweenies.size());
 	for(const auto& tween : tweenies)
 	{
-		tween_holder.emplace_back(std::make_shared<TargetType>(tween));
+		tween_holder.emplace_back(std::make_shared<tween_impl<TargetType>>(tween));
 	}
 
 	return together(tween_holder);

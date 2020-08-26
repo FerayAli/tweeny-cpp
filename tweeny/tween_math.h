@@ -29,6 +29,12 @@ OutType range_map(const InType& in,
 				  const decltype(out_start)& out_end,
 				  const ease_t& ease_func = ease::linear);
 
+template<typename T>
+T clamp(const T& value, const T& min, const T& max)
+{
+	return std::min<T>(std::max<T>(value, min), max);
+}
+
 //Make things constexpr
 float square(float x, int n);
 float flip(float x);
