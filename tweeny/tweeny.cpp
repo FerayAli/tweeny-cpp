@@ -26,7 +26,7 @@ void stop_when_finished(tween_id_t id)
 
 void stop_and_finish(tween_id_t id, duration_t finish_after)
 {
-	detail::get_active_manager()->stop_and_finish(id);
+	detail::get_active_manager()->stop_and_finish(id, finish_after);
 }
 
 bool is_stopping(tween_id_t id)

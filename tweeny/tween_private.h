@@ -47,6 +47,8 @@ struct tween_private
 	template<typename Tween>
 	static void set_speed_multiplier(Tween& tween, float speed_multiplier)
 	{
+		speed_multiplier = std::min<float>(100.0f, speed_multiplier);
+		speed_multiplier = std::max<float>(0.0f, speed_multiplier);
 		tween.speed_multiplier_ = speed_multiplier;
 	}
 

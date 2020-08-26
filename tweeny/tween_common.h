@@ -20,7 +20,10 @@ enum class state_t
     finished
 };
 
-template<typename Object>
-struct tween_access{};
+template<typename T, typename = void>
+struct tween_access
+{
+	static_assert(!std::is_same<T, T>::value, "Please specialize.");
+};
 
 }
