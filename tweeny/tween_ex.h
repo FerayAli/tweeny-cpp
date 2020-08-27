@@ -22,6 +22,7 @@ move_from_to(const std::shared_ptr<Object>& object,
 			 const duration_t& duration,
 			 const ease_t& ease_func = ease::linear);
 
+//move_path + option for bezier curve
 //template<typename Object, typename TargetType>
 //tween_action
 //move_from_to_local(Object& object,

@@ -71,16 +71,16 @@ auto create_tween_updater(Object* object,
 }
 
 template<typename TargetType>
-auto create_tween_value_updater(TargetType&& begin,
-								TargetType&& end,
+auto create_tween_value_updater(const TargetType& begin,
+								const TargetType& end,
 								const duration_t& duration,
 								const ease_t& ease_func)
 {
-	auto get_info = [](TargetType&& begin, TargetType&& end, const duration_t& duration)
+	auto get_info = [](const TargetType& begin, const TargetType& end, const duration_t& duration)
 	{
 		info_t<TargetType> info;
-		info.begin = std::forward<TargetType>(begin);
-		info.end =  std::forward<TargetType>(end);
+		info.begin = begin;
+		info.end = end;
 		info.current = info.begin;
 		info.elapsed = duration_t::zero();
 		info.duration = duration;
@@ -88,10 +88,10 @@ auto create_tween_value_updater(TargetType&& begin,
 		return info;
 	};
 
-	return [info = get_info(std::forward<TargetType>(begin), std::forward<TargetType>(end), duration)
+	return [info = get_info(begin, end, duration)
 			, ease_func = ease_func
 			, finished = false]
-    (duration_t delta, tween_value<TargetType>& self) mutable -> state_t
+		   (duration_t delta, tween_value<TargetType>& self) mutable -> state_t
     {
         if(finished)
         {
@@ -100,7 +100,7 @@ auto create_tween_value_updater(TargetType&& begin,
 
         if(self.get_duration() == duration_t::zero())
         {
-			update_func(info.current, info.end);
+			info.current = info.end;
             finished = true;
 
             return state_t::finished;

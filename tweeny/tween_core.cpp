@@ -155,43 +155,7 @@ tween_action together(const std::vector<std::shared_ptr<tween_base_impl>>& tween
 
 tween_action delay(const duration_t& duration)
 {
-	auto updater = [finished = false](duration_t delta, tween_action& self) mutable
-	{
-		if(finished)
-		{
-			return state_t::finished;
-		}
-
-		tween_private::update_elapsed(self, delta);
-		if(self.on_step)
-		{
-			self.on_step();
-		}
-
-		if(self.get_elapsed() == self.get_duration())
-		{
-			finished = true;
-			if(self.on_end)
-			{
-				self.on_end();
-			}
-			return state_t::finished;
-		}
-
-		return state_t::running;
-	};
-
-	auto creator = [updater = std::move(updater)](tween_action& self)
-	{
-		if(self.on_begin)
-		{
-			self.on_begin();
-		}
-
-		return updater;
-	};
-
-	return tween_action(std::move(creator), duration);
+	return delay(duration, global_sentinel());
 }
 
 tween_action delay(const duration_t& duration, const sentinel_t& sentinel)

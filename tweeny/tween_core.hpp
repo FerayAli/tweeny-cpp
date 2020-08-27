@@ -12,11 +12,11 @@ tween_value_from_to(const TargetType& begin,
 					const duration_t& duration,
 					const ease_t& ease_func)
 {
-	auto creator = [begin = std::forward<TargetType>(begin),
-					end = std::forward<TargetType>(end),
+	auto creator = [begin,
+					end,
 					duration,
 					ease_func]
-	(tween_action& self)
+	(tween_value<TargetType>& self) mutable
 	{
 		info_t<TargetType> info;
 		info.begin = begin;
@@ -37,7 +37,7 @@ tween_value_from_to(const TargetType& begin,
 										  ease_func);
 	};
 
-	return tween_action(std::move(creator), duration);
+	return tween_value<TargetType>(std::move(creator), duration);
 }
 
 template<typename TargetType>
@@ -92,14 +92,16 @@ tween_from_to(const std::shared_ptr<TargetType>& object,
     return tween_from_to(*object.get(), begin, end, duration, object, ease_func);
 }
 
-template<typename TargetType>
+template<typename T, typename U>
 tween_action
-tween_to(TargetType& object,
-		 const decltype(std::decay_t<TargetType>(object))& end,
+tween_to(T& object,
+		 const U& end,
 		 const duration_t& duration,
 		 const sentinel_t& sentinel,
 		 const ease_t& ease_func)
 {
+	static_assert(std::is_convertible<T, U>::value, "Parameters should be convertable.");
+
 	auto creator = [&object,
 					end,
 					sentinel,
@@ -110,16 +112,16 @@ tween_to(TargetType& object,
 			self.on_begin();
 		}
 
-		auto initialize_func = [](TargetType* object, sentinel_t sentinel)
+		auto initialize_func = [](T* object, sentinel_t sentinel)
 		{
 			if(sentinel.expired())
 			{
-				return TargetType{};
+				return T{};
 			}
 			return (*object);
 		};
 
-		auto updater_func = [](TargetType* object, TargetType next)
+		auto updater_func = [](T* object, T next)
 		{
 			(*object) = next;
 		};
@@ -196,13 +198,13 @@ tween_by(const std::shared_ptr<TargetType>& object,
 }
 
 template<typename T1, typename T2, typename... TweenType>
-tween_action sequence(T1&& tween1, T2&& tween2, TweenType&&... tween)
+tween_action sequence(const T1& tween1, const T2& tween2, const TweenType&... tween)
 {
     std::vector<std::shared_ptr<tween_base_impl>> tween_holder =
     {
-        std::make_shared<decltype(std::decay_t<T1>(tween1))>(std::forward<T1>(tween1)),
-        std::make_shared<decltype(std::decay_t<T2>(tween2))>(std::forward<T1>(tween2)),
-        std::make_shared<decltype(std::decay_t<TweenType>(tween))>(std::forward<TweenType>(tween))...
+		std::make_shared<T1>(tween1),
+		std::make_shared<T2>(tween2),
+		std::make_shared<TweenType>(tween)...
     };
 
 	return sequence(tween_holder);
@@ -319,6 +321,12 @@ tween_action repeat(TweenType& tween, size_t times)
 	}
 
 	return tween_action(std::move(creator), duration);
+}
+
+template<typename TweenType>
+tween_action repeat(TweenType& tween, const sentinel_t& sentinel, size_t times)
+{
+
 }
 
 } //end of namespace tweeny

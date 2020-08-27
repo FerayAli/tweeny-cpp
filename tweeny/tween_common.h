@@ -26,4 +26,6 @@ struct tween_access
 	static_assert(!std::is_same<T, T>::value, "Please specialize.");
 };
 
+sentinel_t global_sentinel();
+
 }

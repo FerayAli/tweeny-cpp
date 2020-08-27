@@ -4,12 +4,19 @@ namespace tweeny
 {
 namespace detail
 {
+namespace
+{
 const std::string GLOBAL_SCOPE = "__internal_scope__";
-
 std::string current_scope_ = GLOBAL_SCOPE;
-detail::managers managers_ = {{GLOBAL_SCOPE, std::make_shared<tween_manager>()}};
+detail::managers managers_ = []()
+{
+	detail::managers mgr;
+	mgr.emplace(GLOBAL_SCOPE, std::make_unique<tween_manager>());
+	return mgr;
+}();
+}
 
-const std::shared_ptr<tween_manager>& get_active_manager()
+const std::unique_ptr<tween_manager>& get_active_manager()
 {
     return managers_.at(current_scope_);
 }
